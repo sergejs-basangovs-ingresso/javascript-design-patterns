@@ -1,5 +1,5 @@
 class Tag {
-	static get indentSize() {
+	static get setIndent() {
 		return 2;
 	}
 
@@ -11,16 +11,16 @@ class Tag {
 
 	toStringImpl(indent) {
 		const html = [];
-		let i = " ".repeat(Tag.indentSize * indent);
+		const i = " ".repeat(Tag.setIndent * indent);
 		const openTag = `${i}<${this.name}>\n`;
-		const closeTag = `${i}</${this.name}>\n`;
+		const closeTag = `${i}<${this.name}>\n`;
 		html.push(openTag);
 		if (this.text.length > 0) {
-			const textIndent = " ".repeat(Tag.indentSize * (indent + 1));
+			const textIndent = " ".repeat(Tag.setIndent * (indent + 1));
 			html.push(`${textIndent + this.text}\n`);
 		}
 		for (const child of this.children) {
-			html.push(child.toStringImpl(indent + 1)); // each child is created with Tag class
+			html.push(child.toStringImpl(indent + 1));
 		}
 		html.push(closeTag);
 		return html.join("");
@@ -38,22 +38,22 @@ class HtmlNodeBuilder {
 	}
 
 	addChild(childName, text) {
-		const childNode = new Tag(childName, text);
-		this.rootNode.children.push(childNode);
+		const child = new Tag(childName, text);
+		this.rootNode.children.push(child);
 	}
 
 	addChildFluent(childName, text) {
-		const childNode = new Tag(childName, text);
-		this.rootNode.children.push(childNode);
+		const child = new Tag(childName, text);
+		this.rootNode.children.push(child);
 		return this;
-	}
-
-	toString() {
-		return this.rootNode.toString();
 	}
 
 	clear() {
 		this.rootNode = new Tag(this.rootName);
+	}
+
+	toString() {
+		return this.rootNode.toString();
 	}
 
 	build() {
