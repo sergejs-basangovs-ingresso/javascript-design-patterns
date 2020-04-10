@@ -1,0 +1,4 @@
+[ INFO ] : Hya, this is my message.
+[ ERROR ] : Errors happens - it is ok.
+[ INFO ] : Information msg via adapter.
+[ ERROR ] : Error message via adapter.
