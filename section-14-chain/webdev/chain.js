@@ -5,10 +5,10 @@ class Account {
 		if (this.canPay(orderPrice)) {
 			console.log(`Paid ${orderPrice} using ${this.name}`);
 		} // 2) then if cannot pay - log it, check if there is next payment method, then recursively proceed with next:
-		else if (this.incomer) {
+		else if (this.next) {
 			console.log(`Cannot pay with ${this.name}`);
 
-			this.incomer.pay(orderPrice);
+			this.next.pay(orderPrice);
 		} // 3) if all next methods fail: log cannot pay
 		else {
 			console.log("We regret - there is not enough money.");
@@ -22,7 +22,7 @@ class Account {
 
 	// setting next available payment card/method
 	setNext(account) {
-		this.incomer = account;
+		this.next = account;
 	}
 }
 

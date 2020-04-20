@@ -4,6 +4,7 @@ class Creature {
 		this.attack = attack;
 		this.defence = defence;
 	}
+
 	toString() {
 		return `${this.name} (${this.attack}/${this.defence})`;
 	}
@@ -12,7 +13,7 @@ class Creature {
 class CreatureModifier {
 	constructor(creature) {
 		this.creature = creature;
-		this.next = null; // linked list
+		this.next = null;
 	}
 
 	add(modifier) {
@@ -25,7 +26,6 @@ class CreatureModifier {
 	}
 }
 
-// creating modifiers: the magic item - that doubles the attack of the given creature:
 class DoubleAttackModifier extends CreatureModifier {
 	constructor(creature) {
 		super(creature);
@@ -44,19 +44,23 @@ class IncreaseDefenceModifier extends CreatureModifier {
 	}
 
 	handle() {
-		console.log(`Doubling ${this.creature.name}'s defence`);
-		this.creature.defence *= 2;
+		if (this.creature.attack <= 2) {
+			console.log(`Increasing ${this.creature.name}'s defence`);
+			this.creature.defence++;
+		}
 		super.handle();
 	}
 }
 
 const goblin = new Creature("Goblin", 1, 1);
-console.log(goblin);
 
-let root = new CreatureModifier(goblin);
+const root = new CreatureModifier(goblin);
+
 root.add(new DoubleAttackModifier(goblin));
+console.log(goblin.toString());
+
 root.add(new IncreaseDefenceModifier(goblin));
 
 root.handle();
+
 console.log(goblin.toString());
-console.log("Root: ", JSON.stringify(root, null, 2));
