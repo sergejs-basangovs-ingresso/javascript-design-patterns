@@ -61,6 +61,10 @@ class Game {
 	remove(index) {
 		this.creatures.delete(index);
 	}
+
+	get creaturesPlaying() {
+		return [...game.creatures.values()].map((item) => item.breed);
+	}
 }
 
 class HuntEventArgs {
@@ -98,6 +102,13 @@ class Creature {
 	}
 
 	get defense() {
+		if (this._defense <= 0) {
+			//if low defense - fire event.
+			this.game.lowDefense.fire(
+				this,
+				new DefenseStatusArgs(this.name, this._defense, this.gamerId)
+			);
+		}
 		return this._defense;
 	}
 
@@ -125,6 +136,22 @@ class Creature {
 		this.game.hunting.fire(this, new HuntEventArgs(this));
 	}
 
+	attackCreature(target) {
+		if (this === target) {
+			console.log("Creature cannot attack itself");
+			return;
+		}
+		console.log(`${this.name} is attacking ${target.name}`);
+		const remainingDefenseTarget =
+			target.defense - Math.floor(this._attack * Math.random());
+		const remainingDefenseAttacker =
+			this.defense - Math.floor(0.3 * target._attack * Math.random());
+		target.defense = remainingDefenseTarget;
+		this.defense = remainingDefenseAttacker;
+		this.print();
+		target.print();
+	}
+
 	print() {
 		console.log(
 			`${this.breed} ${this.name} (${this._attack} / ${this._defense} / ${
@@ -147,29 +174,53 @@ class Elf extends Creature {
 }
 
 const game = new Game();
-const goblin = new Monster(game, "Johnny");
-const elf = new Elf(game, "Tourouwyell");
+const creatures = {
+	goblin: new Monster(game, "Johnny"),
+	elf: new Elf(game, "Tourouwyell"),
+};
+
+const { goblin, elf } = creatures;
 
 goblin.join();
 elf.join();
 
-goblin.print();
-elf.print();
+goblin.hunt();
+elf.hunt();
 
-rl.question("Who is going to hunt today ? : ", (answer) => {
-	if (answer === "goblin") {
-		goblin.hunt();
-	} else if (answer === "elf") {
-		elf.hunt();
-		elf.defense = -10;
-		console.log(game);
-	} else {
-		console.log(
-			`The creature: '${answer}' - is not available, or not active.`
-		);
-	}
-	rl.question("Who is attacking ? ", (answer) => {
-		console.log(answer, " is attacking...");
-		rl.close();
-	});
-});
+function questAttack(tours) {
+	tours--;
+	rl.question(
+		`Who is attacking ? [${game.creaturesPlaying.join(", ")}]: `,
+		(answer) => {
+			if (!game.creaturesPlaying.includes(answer)) {
+				console.log("No such creature!");
+				rl.close();
+				return;
+			}
+			const attacker = answer;
+
+			rl.question(
+				`${attacker} >>> who is the target ? [${game.creaturesPlaying.join(
+					", "
+				)}]: `,
+				(answer) => {
+					if (!game.creaturesPlaying.includes(answer)) {
+						console.log("No such creature!");
+						rl.close();
+						return;
+					}
+					const target = answer;
+					creatures[attacker].attackCreature(creatures[target]);
+
+					if (tours > 0) {
+						questAttack(tours);
+					} else {
+						rl.close();
+					}
+				}
+			);
+		}
+	);
+}
+
+questAttack(3);
